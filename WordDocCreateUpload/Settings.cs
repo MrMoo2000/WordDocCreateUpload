@@ -11,7 +11,7 @@ namespace WordDocCreateUpload
         public string[] GraphUserScopes =
         {
             "user.read",
-            "Files.Read"
+            "Files.ReadWrite"
         };
         public static Settings LoadSettings()
         {
