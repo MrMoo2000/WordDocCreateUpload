@@ -7,9 +7,7 @@ using DocumentFormat.OpenXml;
 using Azure.Identity;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
-
-
-
+using System.Runtime.CompilerServices;
 
 namespace WordDocCreateUpload
 {
@@ -17,20 +15,24 @@ namespace WordDocCreateUpload
     {
         private static GraphServiceClient? _userClient;
 
+        private static string _driveId;
+        private static string _driveRootId; 
+
         static async Task Main()//string[] args)
         {
             try
             {
                 var settings = Settings.LoadSettings();
                 InitializeGraph(settings);
+                _driveId = await GetDriveID();
+                _driveRootId = await GetDriveRootID();
             }
             catch (InvalidOperationException ex) {
                 DisplayErrorExit(ex.Message);
             }
 
-            string folderName = "TestDocssz";
+            string folderName = "TestDocs";
 
-            // We get the ID of the folder, then we pass that to the word doc handling... 
             string folderID = await GetFolderID(folderName);
 
             Console.WriteLine(folderID);
@@ -42,11 +44,20 @@ namespace WordDocCreateUpload
             MemoryStream wordDocStream = CreateWordDocStream(docContents!);
 
 
-            Console.WriteLine("Enter Name for word doc:");
+            List<DriveItem>? items;
+            string docName;
+            bool itemExists;
+            do
+            {
+                Console.WriteLine("Enter Name for word doc:");
+                docName = Console.ReadLine()!;
+                docName += ".docx"; //add a check, so if the last is .docx don't include
+                items = await GetChildItems(folderID);
+                itemExists = ItemNameExists(items, docName) == null ? false : true;
+                if (itemExists) { Console.WriteLine($"Item with the name {docName} already exists. Please enter a different name"); }
+            } while (itemExists);
 
-            var docName = Console.ReadLine();
-            // Could validate doc name before creation as well
-
+            await UploadWordDoc(wordDocStream,docName, folderID);
             Console.WriteLine("Doc Created");
 
             Console.ReadKey(true);
@@ -73,6 +84,7 @@ namespace WordDocCreateUpload
                 Run run = para.AppendChild(new Run());
                 run.AppendChild(new Text(text));
             }
+            stream.Position = 0;
             return stream;
         }
 
@@ -90,6 +102,17 @@ namespace WordDocCreateUpload
                 });
         }
 
+        async static Task<string> GetDriveID()
+        {
+            var driveItem = await _userClient.Me.Drive.GetAsync();
+            return driveItem.Id;
+        }
+        async static Task<string> GetDriveRootID()
+        {
+            var root = await _userClient.Drives[_driveId].Root.GetAsync();
+            return root.Id;
+        }
+
         public static void InitializeGraphForUserAuth(Settings settings,
             Func<DeviceCodeInfo, CancellationToken, Task> deviceCodePrompt)
         {
@@ -100,14 +123,6 @@ namespace WordDocCreateUpload
             _userClient = new GraphServiceClient(deviceCodeCredential, settings.GraphUserScopes);
         }
 
-        /*
-         * 
-         * Get all DOC names in one drive folder 
-         * If any names match, return false
-         * Else, true 
-         */
-
-        // Change to return ID of folder 
         async static Task<string> GetFolderID(string folderName)
         {
             string? folderID = await FolderIDAtRoot(folderName);
@@ -116,39 +131,51 @@ namespace WordDocCreateUpload
             return folderID;
         }
 
-        // Change to return the ID of folder, null ID if does not exist 
-        async static Task<string> FolderIDAtRoot(string folderName)
+        async static Task<List<DriveItem>?> GetChildItems(string itemId)
         {
-            var driveItem = await _userClient.Me.Drive.GetAsync();
-            var root = await _userClient.Drives[driveItem.Id].Root.GetAsync();
-            var children = await _userClient.Drives[driveItem.Id].Items[root.Id].Children.GetAsync();
+            var children = await _userClient.Drives[_driveId].Items[itemId].Children.GetAsync();
+            return children.Value;
+        }
 
-            foreach (var item in children.Value)
+        // Change to return the ID of folder, null ID if does not exist 
+        async static Task<string?> FolderIDAtRoot(string folderName)
+        {
+            var children = await _userClient.Drives[_driveId].Items[_driveRootId].Children.GetAsync();
+
+            var item = ItemNameExists(children.Value, folderName);
+
+            return item == null ? null : item.Id;
+        }
+
+        static DriveItem? ItemNameExists(List<DriveItem> items, string itemName)
+        {
+            foreach (DriveItem item in items)
             {
-                if(item.Folder != null && item.Folder.GetType() == typeof(Folder) && item.Name == folderName)
+                if (item.Name == itemName)
                 {
-                    return item.Id;
+                    return item;
                 }
             }
             return null;
         }
 
-        // Change to return ID of folder 
         async static Task<string> CreateNewFolderAtRoot(string folderName)
         {
-            var driveItem = await _userClient.Me.Drive.GetAsync();
-            var root = await _userClient.Drives[driveItem.Id].Root.GetAsync();
-
             DriveItem newFolder = new DriveItem()
             {
                 Name = folderName,
                 Folder = new Folder()
             };
 
-            var folder = await _userClient.Drives[driveItem.Id].Items[root.Id].Children.PostAsync(newFolder);
+            var folder = await _userClient.Drives[_driveId].Items[_driveRootId].Children.PostAsync(newFolder);
 
             return folder.Id;
 
+        }
+
+        async static Task UploadWordDoc(MemoryStream docStream, string docName, string folderId)
+        {
+            await _userClient.Drives[_driveId].Items[folderId].ItemWithPath(docName).Content.PutAsync(docStream);
         }
     }
 }
