@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graph;
+using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.Beta_Dist;
 using Microsoft.Graph.Models;
 
 namespace WordDocCreateUpload
@@ -12,31 +13,30 @@ namespace WordDocCreateUpload
         /// <summary>
         /// Drive ID of the user
         /// </summary>
-        private readonly string? _driveId;
+        private readonly Drive? _userDrive;
         /// <summary>
         /// Item ID of the root
         /// </summary>
-        private readonly string? _driveRootId;
+        private readonly DriveItem? _driveRoot;
+
+
+        public DriveItem? TargetDriveItem;
+
         /// <summary>
         /// Requires configured GraphServiceClient 
         /// </summary>
         /// <param name="userClient">Configured GraphServiceClient </param>
         /// <param name="driveId">Drive ID of the user</param>
         /// <param name="driveRootId">Root item ID</param>
-        public GraphAPI(GraphServiceClient userClient, string driveId, string driveRootId)
+        public GraphAPI(GraphServiceClient userClient, Drive userDrive, DriveItem driveRoot)
         {
             _userClient = userClient;
-            _driveId = driveId;
-            _driveRootId = driveRootId;
+            _userDrive = userDrive;
+            _driveRoot = driveRoot;
+            TargetDriveItem = _driveRoot;
         }
 
-        /// <summary>
-        /// Creates a new folder at drive root
-        /// </summary>
-        /// <param name="folderName">Name of folder to be created</param>
-        /// <returns>ID of newly created folder</returns>
-        /// <exception cref="System.NullReferenceException"></exception>
-        public async Task<string> CreateNewFolderAtRoot(string folderName)
+        public async Task<DriveItem> CreateNewFolderAtRoot(string folderName)
         {
             DriveItem newFolder = new()
             {
@@ -44,51 +44,45 @@ namespace WordDocCreateUpload
                 Folder = new Folder()
             };
 
-            var folder = await _userClient.Drives[_driveId].Items[_driveRootId].Children.PostAsync(newFolder);
+            var folder = await _userClient.Drives[_userDrive.Id].Items[_driveRoot.Id].Children.PostAsync(newFolder);
 
-            _ = folder?.Id ?? throw new System.NullReferenceException("Could not get folder ID");
+            _ = folder ?? throw new System.NullReferenceException("Could not get folder ID");
 
-            return folder.Id;
+            return folder;
         }
-        /// <summary>
-        /// Gets folder ID by name at root of drive 
-        /// </summary>
-        /// <param name="folderName">Name of folder to check for</param>
-        /// <returns>Returns folder ID or null if not found</returns>
-        /// <exception cref="NullReferenceException"></exception>
-        public async Task<string?> FolderIDAtRoot(string folderName)
+
+        public async Task<DriveItem?> FolderAtRoot(string folderName)
         {
-            var children = await _userClient.Drives[_driveId].Items[_driveRootId].Children.GetAsync();
+            var children = await _userClient.Drives[_userDrive.Id].Items[_driveRoot.Id].Children.GetAsync();
 
             _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {folderName}");
 
             var item = GraphHelper.ItemNameExists(children.Value, folderName);
 
-            return item?.Id;
+            return item;
         }
         /// <summary>
         /// Gets child items of an item ID 
         /// </summary>
-        /// <param name="itemId">Item ID to get child items of</param>
-        /// <returns>Child Items of an Item ID</returns>
+        /// <returns>Child Items of target drive item</returns>
         /// <exception cref="NullReferenceException"></exception>
-        public async Task<List<DriveItem>?> GetChildItems(string itemId)
+        public async Task<List<DriveItem>?> GetChildItems()
         {
-            var children = await _userClient.Drives[_driveId].Items[itemId].Children.GetAsync();
-            _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {itemId}");
+            var children = await _userClient.Drives[_userDrive.Id].Items[TargetDriveItem.Id].Children.GetAsync();
+            _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {TargetDriveItem.Id}");
             return children.Value;
         }
         /// <summary>
-        /// Uploads a word document to a specific itemID
+        /// Uploads a word document to target drive item
         /// </summary>
         /// <param name="docStream">Stream containg word document</param>
         /// <param name="docName">Name of Word Doc</param>
-        /// <param name="itemID">ID of item to upload under</param>
         /// <returns></returns>
-        public async Task UploadWordDoc(MemoryStream docStream, string docName, string itemID)
+        public async Task UploadWordDoc(MemoryStream docStream, string docName)
         {
-            await _userClient.Drives[_driveId].Items[itemID].ItemWithPath(docName).Content.PutAsync(docStream);
+            await _userClient.Drives[_userDrive.Id].Items[TargetDriveItem.Id].ItemWithPath(docName).Content.PutAsync(docStream);
         }
+
 
     }
 }
