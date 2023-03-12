@@ -25,15 +25,16 @@ namespace WordDocCreateUpload
             _driveRootId = driveRootId;
         }
 
+        /*
         public async Task<string> GetFolderID(string folderName)
         {
             string? folderID = await FolderIDAtRoot(folderName);
-            folderID ??= await CreateNewFolderAtRoot(folderName);
+            //folderID ??= await CreateNewFolderAtRoot(folderName);
 
             return folderID;
-        }
+        }*/
 
-        private async Task<string> CreateNewFolderAtRoot(string folderName)
+        public async Task<string> CreateNewFolderAtRoot(string folderName)
         {
             DriveItem newFolder = new()
             {
@@ -48,7 +49,7 @@ namespace WordDocCreateUpload
             return folder.Id;
         }
 
-        private async Task<string?> FolderIDAtRoot(string folderName)
+        public async Task<string?> FolderIDAtRoot(string folderName)
         {
             var children = await _userClient.Drives[_driveId].Items[_driveRootId].Children.GetAsync();
 
