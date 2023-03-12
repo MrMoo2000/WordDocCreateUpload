@@ -44,7 +44,7 @@ namespace WordDocCreateUpload
                 Folder = new Folder()
             };
 
-            var folder = await _userClient.Drives[_userDrive.Id].Items[_driveRoot.Id].Children.PostAsync(newFolder);
+            var folder = await _userClient.Drives[_userDrive!.Id].Items[_driveRoot!.Id].Children.PostAsync(newFolder);
 
             _ = folder ?? throw new System.NullReferenceException("Could not get folder ID");
 
@@ -53,7 +53,7 @@ namespace WordDocCreateUpload
 
         public async Task<DriveItem?> FolderAtRoot(string folderName)
         {
-            var children = await _userClient.Drives[_userDrive.Id].Items[_driveRoot.Id].Children.GetAsync();
+            var children = await _userClient.Drives[_userDrive!.Id].Items[_driveRoot!.Id].Children.GetAsync();
 
             _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {folderName}");
 
@@ -68,7 +68,7 @@ namespace WordDocCreateUpload
         /// <exception cref="NullReferenceException"></exception>
         public async Task<List<DriveItem>?> GetChildItems()
         {
-            var children = await _userClient.Drives[_userDrive.Id].Items[TargetDriveItem.Id].Children.GetAsync();
+            var children = await _userClient.Drives[_userDrive!.Id].Items[TargetDriveItem!.Id].Children.GetAsync();
             _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {TargetDriveItem.Id}");
             return children.Value;
         }
@@ -80,9 +80,8 @@ namespace WordDocCreateUpload
         /// <returns></returns>
         public async Task UploadWordDoc(MemoryStream docStream, string docName)
         {
-            await _userClient.Drives[_userDrive.Id].Items[TargetDriveItem.Id].ItemWithPath(docName).Content.PutAsync(docStream);
+            await _userClient.Drives[_userDrive!.Id].Items[TargetDriveItem!.Id].ItemWithPath(docName).Content.PutAsync(docStream);
         }
-
 
     }
 }

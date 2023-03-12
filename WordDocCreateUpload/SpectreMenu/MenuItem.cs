@@ -7,8 +7,8 @@ namespace WordDocCreateUpload.SpectreMenu
     {
         private Dictionary<string, IMenuItem> _children;
         private List<string> _childrenMenuItems;
-        private string _itemName;
-        private IMenuItem _parent;
+        private string _itemName = "";
+        private IMenuItem? _parent;
         public Guid InstanceID { get; private set; }
 
         public MenuItem()
@@ -38,7 +38,7 @@ namespace WordDocCreateUpload.SpectreMenu
         {
             return _itemName;
         }
-        public IMenuItem getParent()
+        public IMenuItem? getParent()
         {
             return _parent;
         }
@@ -60,7 +60,7 @@ namespace WordDocCreateUpload.SpectreMenu
         }
 
 
-        public async virtual Task<IMenuItem> navigate()
+        public async virtual Task<IMenuItem?> navigate()
         {
             string navSelection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -71,11 +71,11 @@ namespace WordDocCreateUpload.SpectreMenu
 
             if (navSelection.Equals(MenuConstants.BACK_STRING))
             {
-                return _parent;
+                return await Task.Run(() =>_parent);
             }
             else
             {
-                return _children[navSelection];
+                return await Task.Run(() => _children[navSelection]);
             }
         }
         public IMenuItem setName(string newItemName)

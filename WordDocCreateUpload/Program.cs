@@ -12,7 +12,6 @@ namespace WordDocCreateUpload
 
         static async Task Main()
         {
-
             try
             {
                 var settings = Settings.LoadSettings();

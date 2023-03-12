@@ -54,13 +54,13 @@ namespace WordDocCreateUpload
         }
         async static Task<Drive> GetDrive(GraphServiceClient userClient)
         {
-            Drive driveItem = await userClient.Me.Drive.GetAsync();
+            Drive? driveItem = await userClient.Me.Drive.GetAsync();
             _ = driveItem ?? throw new NullReferenceException("Set Drive returned null - could not get drive");
             return driveItem;
         }
         async static Task<DriveItem> GetDriveRoot(GraphServiceClient userClient, Drive userDrive)
         {
-            DriveItem root = await userClient.Drives[userDrive.Id].Root.GetAsync();
+            DriveItem? root = await userClient.Drives[userDrive.Id].Root.GetAsync();
             _ = root ?? throw new NullReferenceException("Set Drive Root ID returned null - could not get root ID");
             return root;
         }

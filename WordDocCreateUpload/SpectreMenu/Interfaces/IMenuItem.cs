@@ -6,10 +6,10 @@ namespace WordDocCreateUpload.SpectreMenu
     delegate void renameMenuItem(IMenuItem item);
     public interface IMenuItem
     {
-        Task<IMenuItem> navigate();
+        Task<IMenuItem?> navigate();
         string getName();
         bool childNameExists(string childName);
-        IMenuItem getParent();
+        IMenuItem? getParent();
         Dictionary<string, IMenuItem> getChildren();
         IMenuItem createParentLink(IMenuItem parent, int index = 0);
         IMenuItem setName(string itemName);

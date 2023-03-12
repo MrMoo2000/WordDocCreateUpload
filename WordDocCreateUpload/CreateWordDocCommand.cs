@@ -14,7 +14,7 @@ namespace WordDocCreateUpload
     internal class CreateWordDocCommand : MenuItem
     {
 
-        public override async Task<IMenuItem> navigate()
+        public override async Task<IMenuItem?> navigate()
         {
             _ = Program.GraphApi ?? throw new NullReferenceException("Graph API not set before calling folder command");
             await CreateWordDoc();
