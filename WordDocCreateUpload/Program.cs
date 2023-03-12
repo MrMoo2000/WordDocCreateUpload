@@ -1,13 +1,7 @@
-﻿
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
-
-
-using Azure.Identity;
-using Microsoft.Graph;
 using Microsoft.Graph.Models;
-using System.Runtime.CompilerServices;
 
 namespace WordDocCreateUpload
 {
@@ -15,7 +9,7 @@ namespace WordDocCreateUpload
     {
         private static GraphAPI? _graphApi; 
 
-        static async Task Main()//string[] args)
+        static async Task Main()
         {            
             try
             {
