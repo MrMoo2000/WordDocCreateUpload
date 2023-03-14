@@ -26,8 +26,7 @@ namespace WordDocCreateUpload
 
             IMenuItem mainMenu = new MenuItem().setName("WordDoc Create and Upload");
 
-            new CreateWordDocCommand().setName($"Create Word Doc").createParentLink(mainMenu);
-
+            new CreateWordDocMenu().setName($"Create Word Doc").createParentLink(mainMenu);
             FolderMenu = new ChangeFolderMenu().setName($"Change Upload Destination - {GetFormmatedCurentTarget()}").createParentLink(mainMenu);
             new FolderMenu(GraphApi.DriveRoot).createParentLink(FolderMenu);
 
@@ -45,6 +44,7 @@ namespace WordDocCreateUpload
 
         public static string GetFormmatedCurentTarget()
         {
+            _ = GraphApi ?? throw new NullReferenceException("Graph API not set before called");
             return $"Current Target:[yellow] {GraphApi.TargetDriveItem.Name}[/]";
         }
     }

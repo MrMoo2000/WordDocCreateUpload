@@ -2,16 +2,11 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
 using Microsoft.Graph.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WordDocCreateUpload.Menu;
 
 namespace WordDocCreateUpload
 {
-    internal class CreateWordDocCommand : MenuItem
+    internal class CreateWordDocMenu : MenuItem
     {
 
         public override async Task<IMenuItem?> navigate()
@@ -35,14 +30,25 @@ namespace WordDocCreateUpload
             {
                 Console.WriteLine("Enter Name for word doc:");
                 docName = Console.ReadLine()!;
-                docName += ".docx"; //add a check, so if the last is .docx don't include
+                if(docName.Length >= 5 && docName.Substring(docName.Length - 5, 5) != ".docx")
+                {
+                    docName += ".docx"; 
+                }
                 items = await Program.GraphApi!.GetChildItems();
-                itemExists = GraphHelper.ItemNameExists(items!, docName) != null;
+                itemExists = ItemNameExists(items!, docName) != null;
                 if (itemExists) { Console.WriteLine($"Item with the name {docName} already exists. Please enter a different name"); }
             } while (itemExists);
 
-            await Program.GraphApi!.UploadWordDoc(wordDocStream, docName);
-            Console.WriteLine("Doc Created. Press any key to return.");
+            try
+            {
+                await Program.GraphApi!.UploadWordDoc(wordDocStream, docName);
+                Console.WriteLine("Doc Created. Press any key to return.");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error, unable to create document: {ex.Message} ");
+                Console.WriteLine("Press any key to return.");
+            }
             Console.ReadKey(true);
         }
         static MemoryStream CreateWordDocStream(string text)
@@ -60,6 +66,18 @@ namespace WordDocCreateUpload
             }
             stream.Position = 0;
             return stream;
+        }
+
+        static DriveItem? ItemNameExists(List<DriveItem> items, string itemName)
+        {
+            foreach (DriveItem item in items)
+            {
+                if (item.Name == itemName)
+                {
+                    return item;
+                }
+            }
+            return null;
         }
     }
 }
