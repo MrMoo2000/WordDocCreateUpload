@@ -52,29 +52,30 @@ namespace WordDocCreateUpload
 
             return new GraphServiceClient(deviceCodeCredential, settings.GraphUserScopes);
         }
+        /// <summary>
+        /// Get drive of authenticated user
+        /// </summary>
+        /// <param name="userClient">Authenticated GraphServiceClient</param>
+        /// <returns>Drive of authenticiated user</returns>
+        /// <exception cref="NullReferenceException"></exception>
         async static Task<Drive> GetDrive(GraphServiceClient userClient)
         {
             Drive? driveItem = await userClient.Me.Drive.GetAsync();
             _ = driveItem ?? throw new NullReferenceException("Set Drive returned null - could not get drive");
             return driveItem;
         }
+        /// <summary>
+        /// Gets the DriveItem that is the root of the users drive
+        /// </summary>
+        /// <param name="userClient">Authenticated GraphServiceClient</param>
+        /// <param name="userDrive">Drive of authenticated user</param>
+        /// <returns>root as DriveItem</returns>
+        /// <exception cref="NullReferenceException"></exception>
         async static Task<DriveItem> GetDriveRoot(GraphServiceClient userClient, Drive userDrive)
         {
             DriveItem? root = await userClient.Drives[userDrive.Id].Root.GetAsync();
-            _ = root ?? throw new NullReferenceException("Set Drive Root ID returned null - could not get root ID");
+            _ = root ?? throw new NullReferenceException("Set Drive Root returned null - could not get root");
             return root;
         }
-        public static DriveItem? ItemNameExists(List<DriveItem> items, string itemName)
-        {
-            foreach (DriveItem item in items)
-            {
-                if (item.Name == itemName)
-                {
-                    return item;
-                }
-            }
-            return null;
-        }
-
     }
 }
