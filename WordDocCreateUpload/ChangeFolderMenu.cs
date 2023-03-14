@@ -1,4 +1,6 @@
-﻿using Microsoft.Graph.Models;
+﻿using DocumentFormat.OpenXml.Drawing;
+using Microsoft.Graph.Models;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,12 +26,14 @@ namespace WordDocCreateUpload
         public ChangeFolderMenu(DriveItem driveItem)
         {
             _driveItem = driveItem;
-            setName(_driveItem.Name);
+            setName($"[yellow]{_driveItem.Name}[/]");
         }
 
         public override async Task<IMenuItem?> navigate()
         {
             _ = Program.GraphApi ?? throw new NullReferenceException("Graph API not set before calling folder command");
+
+            AnsiConsole.MarkupLine(Program.GetFormmatedCurentTarget());
 
             removeAllChildren(); // Clear any existing 
 
@@ -42,29 +46,21 @@ namespace WordDocCreateUpload
             if(Program.GraphApi.TargetDriveItem != _driveItem)
             {
                 Program.GraphApi.TargetDriveItem = _driveItem;
-                Program.FolderMenu.setName($"Change Upload Destination - Current Target: {Program.GraphApi.TargetDriveItem.Name}");
+                Program.FolderMenu.setName($"Change Upload Destination - Current Target:[yellow] {Program.GraphApi.TargetDriveItem.Name}[/]");
             }
-
 
             // SO, get all folder items of this item and add them as children... 
             List<DriveItem>? children = await Program.GraphApi.GetChildItems();
 
-            // Check if children is null or empty... that means it's an empty folder 
-            _ = children ?? throw new Exception("Need to handle empty folders");
-
             // If not, filter children for just folders...
-            List<DriveItem> childFolders = children; // Add filtering of folders 
-
+            List<DriveItem> childFolders = children.Where(c => c.Folder != null).ToList();
 
             // Set create children menu items...
             foreach (DriveItem childFolder in childFolders)
             {
                 var newFolder = new ChangeFolderMenu(childFolder);
                 newFolder.createParentLink(this);
-                //addChild(new ChangeFolderMenu(childFolder));
             }
-
-
             return await base.navigate();
         }
     }
