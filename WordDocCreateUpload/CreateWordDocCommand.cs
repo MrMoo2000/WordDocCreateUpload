@@ -42,7 +42,8 @@ namespace WordDocCreateUpload
             } while (itemExists);
 
             await Program.GraphApi!.UploadWordDoc(wordDocStream, docName);
-            Console.WriteLine("Doc Created");
+            Console.WriteLine("Doc Created. Press any key to return.");
+            Console.ReadKey(true);
         }
         static MemoryStream CreateWordDocStream(string text)
         {
