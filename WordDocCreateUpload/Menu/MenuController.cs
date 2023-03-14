@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WordDocCreateUpload.SpectreMenu
+namespace WordDocCreateUpload.Menu
 {
     public class MenuController : IMenuController
     {
@@ -21,6 +21,10 @@ namespace WordDocCreateUpload.SpectreMenu
         {
             _mainMenu = mainMenu;
             return this;
+        }
+        public IMenuItem? GetMainMenu()
+        {
+            return _mainMenu;
         }
         public async Task Start()
         {

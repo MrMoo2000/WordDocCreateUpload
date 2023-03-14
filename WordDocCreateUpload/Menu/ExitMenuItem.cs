@@ -1,4 +1,4 @@
-﻿namespace WordDocCreateUpload.SpectreMenu
+﻿namespace WordDocCreateUpload.Menu
 {
     class ExitMenuItem : MenuItem
     {

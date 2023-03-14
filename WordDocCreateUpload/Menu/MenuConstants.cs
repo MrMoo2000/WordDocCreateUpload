@@ -1,4 +1,4 @@
-﻿namespace WordDocCreateUpload.SpectreMenu
+﻿namespace WordDocCreateUpload.Menu
 {
     public static class MenuConstants
     {

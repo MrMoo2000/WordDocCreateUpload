@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Spectre.Console;
 
-namespace WordDocCreateUpload.SpectreMenu
+namespace WordDocCreateUpload.Menu
 {
     public class MenuItem : IMenuItem
     {
@@ -27,6 +27,11 @@ namespace WordDocCreateUpload.SpectreMenu
         {
             _children.Remove(child.getName());
             _childrenMenuItems.Remove(child.getName());
+        }
+        public void removeAllChildren()
+        {
+            _childrenMenuItems.Clear();
+            _children.Clear();
         }
         public IMenuItem createParentLink(IMenuItem parent, int index = 0)
         {

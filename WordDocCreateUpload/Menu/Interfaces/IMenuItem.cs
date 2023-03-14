@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WordDocCreateUpload.SpectreMenu
+namespace WordDocCreateUpload.Menu
 {
     delegate void renameMenuItem(IMenuItem item);
     public interface IMenuItem
@@ -15,6 +15,7 @@ namespace WordDocCreateUpload.SpectreMenu
         IMenuItem setName(string itemName);
         void addChild(IMenuItem child, int index = 0);
         void removeChild(IMenuItem child);
+        void removeAllChildren();
         void displayBackOnlyOption();
     }
 }

@@ -13,14 +13,14 @@ namespace WordDocCreateUpload
         /// <summary>
         /// Drive ID of the user
         /// </summary>
-        private readonly Drive? _userDrive;
+        private readonly Drive _userDrive;
         /// <summary>
         /// Item ID of the root
         /// </summary>
-        private readonly DriveItem? _driveRoot;
+        public DriveItem DriveRoot { get; private set; }
 
 
-        public DriveItem? TargetDriveItem;
+        public DriveItem TargetDriveItem;
 
         /// <summary>
         /// Requires configured GraphServiceClient 
@@ -32,8 +32,8 @@ namespace WordDocCreateUpload
         {
             _userClient = userClient;
             _userDrive = userDrive;
-            _driveRoot = driveRoot;
-            TargetDriveItem = _driveRoot;
+            DriveRoot = driveRoot;
+            TargetDriveItem = DriveRoot;
         }
 
         public async Task<DriveItem> CreateNewFolderAtRoot(string folderName)
@@ -44,7 +44,7 @@ namespace WordDocCreateUpload
                 Folder = new Folder()
             };
 
-            var folder = await _userClient.Drives[_userDrive!.Id].Items[_driveRoot!.Id].Children.PostAsync(newFolder);
+            var folder = await _userClient.Drives[_userDrive!.Id].Items[DriveRoot!.Id].Children.PostAsync(newFolder);
 
             _ = folder ?? throw new System.NullReferenceException("Could not get folder ID");
 
@@ -53,7 +53,7 @@ namespace WordDocCreateUpload
 
         public async Task<DriveItem?> FolderAtRoot(string folderName)
         {
-            var children = await _userClient.Drives[_userDrive!.Id].Items[_driveRoot!.Id].Children.GetAsync();
+            var children = await _userClient.Drives[_userDrive!.Id].Items[DriveRoot!.Id].Children.GetAsync();
 
             _ = children?.Value ?? throw new NullReferenceException($"Could not get children of {folderName}");
 
