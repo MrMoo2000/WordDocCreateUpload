@@ -9,7 +9,7 @@ namespace WordDocCreateUpload
 {
     internal class SetUploadDestinationMenu : MenuItem
     {
-        public SetUploadDestinationMenu() { setName("Set Upload Destination"); }
+        public SetUploadDestinationMenu() { setName("[cyan]Set Upload Destination[/]"); }
         public async override Task<IMenuItem?> navigate()
         {
             return await Task.Run(Program.MenuController.GetMainMenu);

@@ -28,8 +28,8 @@ namespace WordDocCreateUpload
 
             new CreateWordDocCommand().setName($"Create Word Doc").createParentLink(mainMenu);
 
-            FolderMenu = new MenuItem().setName($"Change Upload Destination - {GetFormmatedCurentTarget()}").createParentLink(mainMenu);
-            new ChangeFolderMenu(GraphApi.DriveRoot).createParentLink(FolderMenu);
+            FolderMenu = new ChangeFolderMenu().setName($"Change Upload Destination - {GetFormmatedCurentTarget()}").createParentLink(mainMenu);
+            new FolderMenu(GraphApi.DriveRoot).createParentLink(FolderMenu);
 
             MenuController = new MenuController().SetMainMenu(mainMenu).AddExitToMainMenu();
             await MenuController.Start();
