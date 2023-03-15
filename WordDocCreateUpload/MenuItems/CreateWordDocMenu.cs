@@ -8,14 +8,21 @@ namespace WordDocCreateUpload
 {
     internal class CreateWordDocMenu : MenuItem
     {
-
+        /// <summary>
+        /// Navigate to menu, call CreateWordDocFunction
+        /// </summary>
+        /// <returns>Parent MenuItem</returns>
+        /// <exception cref="NullReferenceException"></exception>
         public override async Task<IMenuItem?> navigate()
         {
             _ = Program.GraphApi ?? throw new NullReferenceException("Graph API not set before calling folder command");
             await CreateWordDoc();
             return getParent();
         }
-
+        /// <summary>
+        /// Creates word doc in OneDrive
+        /// </summary>
+        /// <returns>Task</returns>
         static async Task CreateWordDoc()
         {
             Console.WriteLine("Enter sentence for doc:");
@@ -51,6 +58,11 @@ namespace WordDocCreateUpload
             }
             Console.ReadKey(true);
         }
+        /// <summary>
+        /// Creates word document stream with single run of text
+        /// </summary>
+        /// <param name="text">single run of text to add</param>
+        /// <returns>MemoryStream containg word document</returns>
         static MemoryStream CreateWordDocStream(string text)
         {
             MemoryStream stream = new();
